@@ -64,24 +64,24 @@ class SecondFragment : Fragment() {
         codeScanner = CodeScanner(requireActivity(), scannerView)
         requestPermissions()
 
-        val networkRequest = NetworkRequest.Builder()
-            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-            .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
-            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-            .build()
-
-        val cm = getSystemService(requireContext(), ConnectivityManager::class.java) as ConnectivityManager
-        cm.requestNetwork(networkRequest, object: ConnectivityManager.NetworkCallback(){
-            override fun onLost(network: Network) {
-                super.onLost(network)
-                _isNetworkAvailable = false
-            }
-
-            override fun onAvailable(network: Network) {
-                super.onAvailable(network)
-                _isNetworkAvailable = true
-            }
-        })
+//        val networkRequest = NetworkRequest.Builder()
+//            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+//            .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+//            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+//            .build()
+//
+//        val cm = getSystemService(requireContext(), ConnectivityManager::class.java) as ConnectivityManager
+//        cm.requestNetwork(networkRequest, object: ConnectivityManager.NetworkCallback(){
+//            override fun onLost(network: Network) {
+//                super.onLost(network)
+//                _isNetworkAvailable = false
+//            }
+//
+//            override fun onAvailable(network: Network) {
+//                super.onAvailable(network)
+//                _isNetworkAvailable = true
+//            }
+//        })
 
     }
 
