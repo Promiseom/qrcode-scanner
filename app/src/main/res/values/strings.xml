@@ -12,8 +12,16 @@
     <string name="cont">Continue</string>
     <string name="no_internet">No Internet</string>
     <string name="confirm_title">Are you sure?</string>
+    <string name="permission_required">Permission Required</string>
     <string name="network_available">Internet Service Restored</string>
-
+    <string name="loading">Loading...</string>
+    <string name="validating_url">Validating Url...</string>
+    <string name="camera_permission_rationale">
+        This application needs to access your camera in order to scan images
+    </string>
+    <string name="network_state_permission_rationale">
+        This application needs to access your network state inorder to validate URLS
+    </string>
     <string name="app_info">
         Malicious QRCode Detector is an app created for a student undergraduate project.
         With the app, you can scan any QRCode and know if its malicious or safe.

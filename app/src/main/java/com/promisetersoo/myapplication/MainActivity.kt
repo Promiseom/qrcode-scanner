@@ -25,7 +25,9 @@ class MainActivity : AppCompatActivity() {
             Log.i("Permission: ", "Granted")
         } else {
             Log.i("Permission: ", "Denied")
-            InfoDialogFragment("Permission Required", "This application needs to access your camera in order to scan images").show(supportFragmentManager, InfoDialogFragment.TAG)
+            val t = getString(R.string.permission_required)
+            val m = getString(R.string.camera_permission_rationale)
+            InfoDialogFragment(t, m).show(supportFragmentManager, InfoDialogFragment.TAG)
         }
     }
 

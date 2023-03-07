@@ -49,26 +49,3 @@ class FirstFragment : Fragment() {
         _binding = null
     }
 }
-
-/**
- * A dialog to show the app information
- */
-class InfoDialogFragment(title: String? = null, message: String): DialogFragment(){
-    private var _title: String?
-    private var _message: String
-
-    init {
-        _title = title
-        _message = message
-    }
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
-        AlertDialog.Builder(requireContext())
-            .setTitle(_title)
-            .setMessage(_message)
-            .setPositiveButton(getString(R.string.ok)){_,_ -> }
-            .create()
-
-    companion object {
-        const val TAG = "InfoDialogFragment"
-    }
-}

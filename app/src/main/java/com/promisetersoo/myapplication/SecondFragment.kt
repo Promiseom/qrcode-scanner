@@ -62,27 +62,8 @@ class SecondFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val scannerView = view.findViewById<CodeScannerView>(R.id.scanner_view)
         codeScanner = CodeScanner(requireActivity(), scannerView)
+//        startNetworkMonitor()
         requestPermissions()
-
-//        val networkRequest = NetworkRequest.Builder()
-//            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-//            .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
-//            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-//            .build()
-//
-//        val cm = getSystemService(requireContext(), ConnectivityManager::class.java) as ConnectivityManager
-//        cm.requestNetwork(networkRequest, object: ConnectivityManager.NetworkCallback(){
-//            override fun onLost(network: Network) {
-//                super.onLost(network)
-//                _isNetworkAvailable = false
-//            }
-//
-//            override fun onAvailable(network: Network) {
-//                super.onAvailable(network)
-//                _isNetworkAvailable = true
-//            }
-//        })
-
     }
 
     /**
@@ -90,6 +71,7 @@ class SecondFragment : Fragment() {
      */
     private fun requestPermissions(){
         when{
+            // check camera permission
             ContextCompat.checkSelfPermission(requireContext(),
                 Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED->{
                     startCodeScanner()
@@ -99,6 +81,30 @@ class SecondFragment : Fragment() {
                 (activity as MainActivity).requestPermissionLauncher.launch(Manifest.permission.CAMERA)
             }
         }
+    }
+
+    /**
+     * Monitors network availability
+     */
+    private fun startNetworkMonitor(){
+        val networkRequest = NetworkRequest.Builder()
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+            .build()
+
+        val cm = getSystemService(requireContext(), ConnectivityManager::class.java) as ConnectivityManager
+        cm.requestNetwork(networkRequest, object: ConnectivityManager.NetworkCallback(){
+            override fun onLost(network: Network) {
+                super.onLost(network)
+                _isNetworkAvailable = false
+            }
+
+            override fun onAvailable(network: Network) {
+                super.onAvailable(network)
+                _isNetworkAvailable = true
+            }
+        })
     }
 
     private fun startCodeScanner(){
@@ -127,7 +133,6 @@ class SecondFragment : Fragment() {
                     codeScanner.startPreview()
                 }).show(childFragmentManager, ConfirmDialogFragment.TAG)
                 showToast("Code Found")
-
             }
         }
         codeScanner.errorCallback = ErrorCallback{
@@ -143,48 +148,11 @@ class SecondFragment : Fragment() {
         if(!_isNetworkAvailable){
             showToast(getString(R.string.no_internet))
         }
-    }
-
-    private fun startCamera(){
-        val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
-        cameraProviderFuture.addListener({
-            // used to bind life cycle of camera to the lifecycle owner
-            val cameraProvider = cameraProviderFuture.get()
-
-            // preview
-            val preview = Preview.Builder().build().also{
-                it.setSurfaceProvider(cameraPreviewView.surfaceProvider)
-            }
-                // select back camera as default camera
-                val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-
-                val imageAnalysis = ImageAnalysis.Builder()
-                    .setTargetResolution(Size(1280, 720))
-                    .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                    .build()
-
-                imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(requireContext()),
-                    QRCodeImageAnalyzer(object: QRCodeFoundListener{
-                        override fun onQRCodeFound(qrCode: String) {
-                            _url = qrCode
-                            showToast("URL:  $qrCode", Toast.LENGTH_SHORT)
-                        }
-
-                        override fun qrCodeNotFound() {
-                            // showToast("QRCode not found", Toast.LENGTH_SHORT)
-                        }
-                    }))
-
-                try{
-                    // unbind use cases before rebinding
-                    cameraProvider.unbindAll()
-
-                    // bind use case to camera
-                    cameraProvider.bindToLifecycle(requireActivity(), cameraSelector, preview)
-                }catch(exc: Exception){
-                    Log.e(TAG, "Use case binding failed", exc)
-                }
-            }, ContextCompat.getMainExecutor(requireContext()))
+        CustomLoadingDialog().setNegativeButtonListener{_,_->
+            showToast("Validation cancelled")
+            codeScanner.releaseResources()
+            codeScanner.startPreview()
+        }.show(childFragmentManager, CustomLoadingDialog.TAG)
     }
 
     private fun showToast(message: String, length: Int = Toast.LENGTH_SHORT){
@@ -204,36 +172,5 @@ class SecondFragment : Fragment() {
     override fun onPause() {
         codeScanner.releaseResources()
         super.onPause()
-    }
-}
-
-/**
- * A dialog to show the app information
- */
-class ConfirmDialogFragment(title: String? = null, message: String,
-                            listener: DialogInterface.OnClickListener,
-                            nListener: DialogInterface.OnClickListener? = null): DialogFragment(){
-    private var _title: String?
-    private var _message: String
-    private var _listener: DialogInterface.OnClickListener
-    private var _nListener: DialogInterface.OnClickListener?
-
-
-    init {
-        _title = title
-        _message = message
-        _listener = listener
-        _nListener = nListener
-    }
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
-        AlertDialog.Builder(requireContext())
-            .setTitle(_title)
-            .setMessage(_message)
-            .setPositiveButton(getString(R.string.cont), _listener)
-            .setNegativeButton(getString(R.string.cancel), _nListener)
-            .create()
-
-    companion object {
-        const val TAG = "ConfirmDialogFragment"
     }
 }
