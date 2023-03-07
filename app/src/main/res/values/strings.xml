@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">QRCode Scanner</string>
+    <string name="action_settings">Settings</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">QRCode Scanner</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="scan_url">Scan Url</string>
+    <string name="scan_url_summary">Scan a QR Code and know if it\'s safe or not</string>
+    <string name="help_button">Help Button</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="cont">Continue</string>
+    <string name="no_internet">No Internet</string>
+    <string name="confirm_title">Are you sure?</string>
+    <string name="network_available">Internet Service Restored</string>
+
+    <string name="app_info">
+        Malicious QRCode Detector is an app created for a student undergraduate project.
+        With the app, you can scan any QRCode and know if its malicious or safe.
+    </string>
+    <string name="hello_first_fragment">Malicious Url Detector</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+</resources>

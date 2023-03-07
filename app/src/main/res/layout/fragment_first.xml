@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".FirstFragment"
+        android:padding="20dip"
+        android:background="@drawable/code_matrix" android:backgroundTint="#717171"
+        android:backgroundTintMode="multiply">
+
+    <!--    <Button-->
+    <!--            android:id="@+id/btnInfo"-->
+    <!--            android:layout_width="60dip"-->
+    <!--            android:layout_height="52dip"-->
+    <!--            android:background="#00FFFFFF"-->
+    <!--            app:icon="@drawable/ic_info"-->
+    <!--            app:iconSize="32dip"-->
+    <!--            app:layout_constraintTop_toTopOf="parent"-->
+    <!--            app:layout_constraintEnd_toEndOf="parent"-->
+    <!--            android:contentDescription="@string/help_button"-->
+    <!--            app:iconTint="#B5B5B5"/>-->
+
+    <TextView
+            android:id="@+id/textHeading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/hello_first_fragment"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/btnScan"
+            android:textColor="#FFFFFF"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textAllCaps="true"/>
+
+    <TextView
+            android:id="@+id/textSubHeading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/scan_url_summary"
+            app:layout_constraintTop_toBottomOf="@id/textHeading"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:paddingTop="5dip"
+            android:paddingStart="20dip"
+            android:paddingEnd="20dip"
+            android:textAlignment="center"/>
+
+    <Button
+            android:id="@+id/btnInfo"
+            android:layout_width="match_parent"
+            android:layout_height="52dip"
+            android:text="App Info"
+            android:layout_margin="5dip"
+            app:cornerRadius="5dip"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/btnScan"/>
+    <Button
+            android:id="@+id/btnScan"
+            android:layout_width="match_parent"
+            android:layout_height="52dip"
+            android:text="@string/scan_url"
+            android:layout_margin="5dip"
+            android:layout_marginBottom="30dip"
+            app:cornerRadius="5dip"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
