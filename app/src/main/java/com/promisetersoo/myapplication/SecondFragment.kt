@@ -153,6 +153,7 @@ class SecondFragment : Fragment() {
     }
 
     private fun validateUrl(url: String){
+        // validation api
         val requestUrl = "https://promise.pythonanywhere.com/validate?url=$url"
 
         // check network connection
@@ -247,7 +248,7 @@ class SecondFragment : Fragment() {
                         "${data.getString("url")} is Malicious"
                     }
                     // confirm if to visit the url
-                    ConfirmDialogFragment("Result", message, {_,_->
+                    val cDialog = ConfirmDialogFragment("Result", message, {_,_->
                         var url = data.getString("url")
                         // determine if the url if properly formatted
                         if(!(url.startsWith("http://") || url.startsWith("https://"))){
@@ -255,7 +256,9 @@ class SecondFragment : Fragment() {
                         }
                         val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                         startActivity(browserIntent)
-                    }).show(childFragmentManager, InfoDialogFragment.TAG)
+                    })
+                    cDialog.positiveButtonText = "Visit"
+                    cDialog.show(childFragmentManager, InfoDialogFragment.TAG)
                 }else{
                     // display the error message
                     InfoDialogFragment("Result", json.getString("message")).show(childFragmentManager, InfoDialogFragment.TAG)

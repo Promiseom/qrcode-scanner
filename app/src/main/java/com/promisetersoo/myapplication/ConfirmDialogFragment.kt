@@ -16,6 +16,10 @@ class ConfirmDialogFragment(title: String? = null, message: String,
     private var _message: String
     private var _listener: DialogInterface.OnClickListener
     private var _nListener: DialogInterface.OnClickListener?
+    var positiveButtonText: String? = null
+        set(value){
+            field = value
+        }
 
     init {
         _title = title
@@ -27,7 +31,7 @@ class ConfirmDialogFragment(title: String? = null, message: String,
         AlertDialog.Builder(requireContext())
             .setTitle(_title)
             .setMessage(_message)
-            .setPositiveButton(getString(R.string.cont), _listener)
+            .setPositiveButton(positiveButtonText?:getString(R.string.cont), _listener)
             .setNegativeButton(getString(R.string.cancel), _nListener)
             .create()
     companion object {
