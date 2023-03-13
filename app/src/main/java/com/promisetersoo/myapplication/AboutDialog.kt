@@ -18,6 +18,8 @@ class AboutDialog: DialogFragment() {
             val inflater = it.layoutInflater
             val view = inflater.inflate(R.layout.help_dialog_layout, null)
             builder.setView(view)
+                .setPositiveButton(getString(R.string.ok)){_,_->
+                }
                 .create()
         } ?: throw IllegalStateException("Activity cannot be null")
     }

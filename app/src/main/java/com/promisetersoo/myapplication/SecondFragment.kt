@@ -1,6 +1,7 @@
 package com.promisetersoo.myapplication
 
 import android.Manifest
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.*
@@ -253,9 +254,16 @@ class SecondFragment : Fragment() {
                         // determine if the url if properly formatted
                         if(!(url.startsWith("http://") || url.startsWith("https://"))){
                             url = "https://$url"
+                            Log.i(tag, "Using New Url $url")
                         }
-                        val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                        startActivity(browserIntent)
+                        try {
+                            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                            startActivity(browserIntent)
+                        }catch(e: ActivityNotFoundException){
+                            showToast("No application can handle this request. Place install a web browser",
+                            Toast.LENGTH_LONG)
+                            e.printStackTrace()
+                        }
                     })
                     cDialog.positiveButtonText = "Visit"
                     cDialog.show(childFragmentManager, InfoDialogFragment.TAG)
