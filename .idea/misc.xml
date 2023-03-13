@@ -9,6 +9,7 @@
         <entry key="app/src/main/res/layout/custom_dialog_loading.xml" value="0.17" />
         <entry key="app/src/main/res/layout/fragment_first.xml" value="0.22" />
         <entry key="app/src/main/res/layout/fragment_second.xml" value="0.22" />
+        <entry key="app/src/main/res/layout/help_dialog_layout.xml" value="0.25" />
       </map>
     </option>
   </component>

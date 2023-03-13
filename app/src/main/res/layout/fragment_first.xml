@@ -55,7 +55,7 @@
             android:id="@+id/btnInfo"
             android:layout_width="match_parent"
             android:layout_height="52dip"
-            android:text="App Info"
+            android:text="About"
             android:layout_margin="5dip"
             app:cornerRadius="5dip"
             app:layout_constraintStart_toStartOf="parent"

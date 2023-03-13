@@ -1,23 +1,16 @@
 package com.promisetersoo.myapplication
 
 import android.Manifest
-import android.app.Dialog
-import android.content.DialogInterface
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.*
 import android.os.Bundle
 import android.util.Log
-import android.util.Size
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageAnalysis
-import androidx.camera.core.Preview
-import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
@@ -30,6 +23,15 @@ import com.google.zxing.BarcodeFormat
 import com.promisetersoo.myapplication.databinding.FragmentSecondBinding
 
 import androidx.core.content.ContextCompat.getSystemService
+import com.google.android.gms.net.CronetProviderInstaller
+import org.chromium.net.CronetEngine
+import org.chromium.net.CronetException
+import org.chromium.net.UrlRequest
+import org.chromium.net.UrlResponseInfo
+import org.json.JSONObject
+import java.nio.ByteBuffer
+import java.nio.charset.Charset
+import java.util.concurrent.Executors
 
 /**
  * A simple [Fragment] subclass as the second destination in the navigation.
@@ -45,6 +47,8 @@ class SecondFragment : Fragment() {
     private lateinit var codeScanner: CodeScanner
     private var _url: String? = null
     private var _isNetworkAvailable = false
+    private var _cronetEngine: CronetEngine? = null
+    private var _request: UrlRequest? = null
 
     companion object{
       const val TAG = "Second Fragment"
@@ -62,7 +66,7 @@ class SecondFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val scannerView = view.findViewById<CodeScannerView>(R.id.scanner_view)
         codeScanner = CodeScanner(requireActivity(), scannerView)
-//        startNetworkMonitor()
+        startNetworkMonitor()
         requestPermissions()
     }
 
@@ -120,12 +124,12 @@ class SecondFragment : Fragment() {
         // callbacks
         codeScanner.decodeCallback = DecodeCallback{
             activity.runOnUiThread{
-                showToast("Scan Result: ${it.text}")
+//                showToast("Scan Result: ${it.text}")
                 _url = it.text
                 val message = "Do you want to validate url: $_url?"
                 // the user can choose to continue or cancel
                 ConfirmDialogFragment(getString(R.string.confirm_title), message, { _, _ ->
-                    Toast.makeText(requireContext(), "Validating Url", Toast.LENGTH_LONG).show()
+//                    Toast.makeText(requireContext(), "Validating Url", Toast.LENGTH_LONG).show()
                     validateUrl(it.text)
                 }, {_,_->
                     // restart camera preview to scan something else
@@ -143,16 +147,145 @@ class SecondFragment : Fragment() {
         codeScanner.startPreview()
     }
 
+    private fun restartScannerPreview(){
+        codeScanner.releaseResources()
+        codeScanner.startPreview()
+    }
+
     private fun validateUrl(url: String){
+        val requestUrl = "https://promise.pythonanywhere.com/validate?url=$url"
+
         // check network connection
         if(!_isNetworkAvailable){
             showToast(getString(R.string.no_internet))
+            restartScannerPreview()
+            return
         }
+        // update play services if required
+        CronetProviderInstaller.installProvider(requireContext())
+
+        if(_cronetEngine == null) {
+            val builder = CronetEngine.Builder(requireContext())
+            _cronetEngine = builder.build()
+        }
+        val executor = Executors.newSingleThreadExecutor()
+        val requestBuilder = (_cronetEngine as CronetEngine).newUrlRequestBuilder(requestUrl, requestCallback, executor)
+        _request = requestBuilder.build()
+        _request?.start()
+        Log.i(TAG, "Making request to $requestUrl")
+
         CustomLoadingDialog().setNegativeButtonListener{_,_->
+            _request?.cancel()
             showToast("Validation cancelled")
-            codeScanner.releaseResources()
-            codeScanner.startPreview()
+            restartScannerPreview()
         }.show(childFragmentManager, CustomLoadingDialog.TAG)
+    }
+
+    private val requestCallback = object: UrlRequest.Callback(){
+        private var buffer: ByteBuffer? = ByteBuffer.allocateDirect(102400)
+        private var responseHeaders: Map<String, List<String>>? = null
+        private var responseString: String? = null
+        private val tag = "URLRequestCallback"
+
+        override fun onRedirectReceived(request: UrlRequest?, info: UrlResponseInfo?, newLocationUrl: String?) {
+            Log.i(tag, "onRedirectReceived")
+            request?.followRedirect()
+        }
+
+        override fun onResponseStarted(request: UrlRequest?, info: UrlResponseInfo?) {
+            Log.i(tag, "onResponseStarted called")
+            val httpStatusCode = info?.httpStatusCode
+            if (httpStatusCode == 200) {
+                // The request was fulfilled. Start reading the response.
+                request?.read(buffer)
+            } else if (httpStatusCode == 503) {
+                // The service is unavailable. You should still check if the request
+                // contains some data.
+                request?.read(buffer)
+            }
+            responseHeaders = info?.allHeaders
+        }
+
+        override fun onReadCompleted(request: UrlRequest?, info: UrlResponseInfo?, byteBuffer: ByteBuffer?) {
+            Log.i(tag, "onReadCompleted called")
+            // Continue reading the response body by reusing the same buffer
+            // until the response has been completed.
+            responseString = byteBuffer?.let{
+                if(it.hasArray()){
+                    // byte to ascii conversion
+                    val sb = StringBuilder()
+                    it.array().forEach{ b->
+                        if(b in (1..127)){
+                            sb.append(b.toInt().toChar())
+                        }
+                    }
+                    sb.toString()
+                }else{
+                    null
+                }
+            }
+            byteBuffer?.clear()
+            request?.read(byteBuffer)
+        }
+
+        override fun onSucceeded(request: UrlRequest?, info: UrlResponseInfo?) {
+            Log.i(tag, "onSucceeded called")
+            // close the validation dialog
+            val dialog: Fragment? = childFragmentManager.findFragmentByTag(CustomLoadingDialog.TAG)
+            dialog?.let {
+                (it as DialogFragment).dismiss()
+            }
+            responseString?.let {
+                Log.d(tag, it)
+                 val json = JSONObject(it)
+                // show the result of the validation
+                if(json.getBoolean("status")){
+                    val data = json.getJSONObject("data")
+                    val message = if(data.getBoolean("is_good")){
+                        "${data.getString("url")} is Safe"
+                    }else{
+                        "${data.getString("url")} is Malicious"
+                    }
+                    // confirm if to visit the url
+                    ConfirmDialogFragment("Result", message, {_,_->
+                        var url = data.getString("url")
+                        // determine if the url if properly formatted
+                        if(!(url.startsWith("http://") || url.startsWith("https://"))){
+                            url = "https://$url"
+                        }
+                        val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                        startActivity(browserIntent)
+                    }).show(childFragmentManager, InfoDialogFragment.TAG)
+                }else{
+                    // display the error message
+                    InfoDialogFragment("Result", json.getString("message")).show(childFragmentManager, InfoDialogFragment.TAG)
+                }
+            }
+            if(responseString == null){
+                InfoDialogFragment("Invalid Response", "The request ended with an invalid server response")
+                    .show(childFragmentManager, InfoDialogFragment.TAG)
+            }
+            restartScannerPreview()
+        }
+
+        override fun onFailed(request: UrlRequest?, info: UrlResponseInfo?, error: CronetException?) {
+            Log.e(tag, "The request failed.", error)
+            // close the validation dialog
+            val dialog: Fragment? = childFragmentManager.findFragmentByTag(CustomLoadingDialog.TAG)
+            dialog?.let{
+                (it as DialogFragment).dismiss()
+            }
+            InfoDialogFragment("Error", "An error occurred while making the request")
+                .show(childFragmentManager, InfoDialogFragment.TAG)
+            restartScannerPreview()
+        }
+
+        override fun onCanceled(request: UrlRequest?, info: UrlResponseInfo?) {
+            Log.i(tag, "onCanceled called")
+            super.onCanceled(request, info)
+            // free resources allocated to process this request
+            _request = null
+        }
     }
 
     private fun showToast(message: String, length: Int = Toast.LENGTH_SHORT){

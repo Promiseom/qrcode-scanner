@@ -26,17 +26,15 @@ class FirstFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         _binding = FragmentFirstBinding.inflate(inflater, container, false)
         return binding.root
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         binding.btnInfo.setOnClickListener{
-            InfoDialogFragment("App Info", getString(R.string.app_info)).show(childFragmentManager, InfoDialogFragment.TAG)
+            AboutDialog().show(childFragmentManager, AboutDialog.TAG)
         }
 
         binding.btnScan.setOnClickListener {

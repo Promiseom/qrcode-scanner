@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="20dip">
+
+    <TextView
+        android:id="@+id/helpTitle"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:text="Help"
+        android:textStyle="bold"
+        android:textSize="22sp"
+        android:paddingBottom="10dip"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+            android:id="@+id/helpContent"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:text="@string/app_info"
+            android:paddingBottom="30dip"
+            app:layout_constraintTop_toBottomOf="@id/helpTitle"/>
+
+    <TextView
+            android:id="@+id/aboutTitle"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:text="About Developer"
+            android:textStyle="bold"
+            android:textSize="22sp"
+            android:paddingBottom="10dip"
+            app:layout_constraintTop_toBottomOf="@id/helpContent"/>
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintTop_toBottomOf="@id/aboutTitle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+<!--        developer name-->
+        <TextView
+                android:id="@+id/name"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:text="Name"
+                android:textStyle="bold"/>
+        <TextView
+                android:id="@+id/nameValue"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:text="Mohammed Jafaru"
+                android:paddingBottom="5dip"/>
+
+<!--        department-->
+        <TextView
+                android:id="@+id/department"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:text="Department"
+                android:textStyle="bold"/>
+        <TextView
+                android:id="@+id/departmentValue"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:text="Mathematics and Computer Science"
+                android:paddingBottom="10dip"/>
+
+        <TextView
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:text="Undergraduate Project Work 2023"
+                android:textStyle="bold"/>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

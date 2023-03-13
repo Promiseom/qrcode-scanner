@@ -30,7 +30,6 @@ class ConfirmDialogFragment(title: String? = null, message: String,
             .setPositiveButton(getString(R.string.cont), _listener)
             .setNegativeButton(getString(R.string.cancel), _nListener)
             .create()
-
     companion object {
         const val TAG = "ConfirmDialogFragment"
     }
